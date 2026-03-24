@@ -32,11 +32,23 @@ Dataset: https://lab.data.ca.gov/dataset/calgem-geothermal-wells/651ae213-b4b9-4
 1. Go into desired folder or workspace and clone the repository
 
 2. Create a virtual environment with Python 3.10 or higher
-    - python -m venv env
+    ### Windows
+    - python -m venv .venv
+
+    ### Mac/Linux
+    - python3 -m venv .venv
 
 3. Activate the virtual environment
-    - On Windows: env\Scripts\activate
+    ### Mac/Linux
+    - source .venv/bin/activate
 
+    ### Windows (Command Prompt)
+    - .venv\Scripts\activate.bat
+
+    ### Windows (PowerShell)
+    - .venv\Scripts\Activate.ps1
+
+Note: If you are using VS Code, it should automatically activate your environment
 4. Select the virtual environment in your IDE (e.g., VS Code)
     - Press Ctrl+Shift+P, then select "Python: Select Interpreter"
     - Select "Enter interpreter path..." then select "Find..."
