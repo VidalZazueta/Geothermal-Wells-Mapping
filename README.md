@@ -28,3 +28,18 @@ GitHub: For version control and sharing our Python scripts among the team.
 ## References
 Dataset: https://lab.data.ca.gov/dataset/calgem-geothermal-wells/651ae213-b4b9-4721-907d-f967e1b7a89e
 
+## Installation
+1. Go into desired folder or workspace and clone the repository
+
+2. Create a virtual environment with Python 3.10 or higher
+    - python -m venv env
+
+3. Activate the virtual environment
+    - On Windows: env\Scripts\activate
+
+4. Select the virtual environment in your IDE (e.g., VS Code)
+    - Press Ctrl+Shift+P, then select "Python: Select Interpreter"
+    - Select "Enter interpreter path..." then select "Find..."
+    - When File explorer opens go to env -> Scripts -> select "python.exe"
+
+4. Next run: pip install -r requirements.txt
