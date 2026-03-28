@@ -1,7 +1,7 @@
 # File that inspects the data to get insights and what bits of data we have to work with.
 import pandas as pd
 
-df = pd.read_csv("Data/geothermal_wells_ca.csv")
+df = pd.read_csv("Data/Raw/geothermal_wells_ca.csv")
 
 # Inspect the size and shape of the data
 print("Dataframe shape (Rows, Columns):", df.shape)
@@ -22,3 +22,11 @@ print(df.isnull().sum())
 print("\nNumber of unique values in each column:")
 for col, count in df.nunique().items():
     print(f"  '{col}': {count} unique values")
+    
+#Print unique values in specific columns
+columns_to_inspect = ['WellStatus', 'WellType', 'WellSymbol', 'GeoDistrict', 'District','Confidential','FieldName','BaseMeridian','DatumCode','WellStatusDescription']
+for col, count in df.nunique().items():
+    if col in columns_to_inspect:
+        print(f"\nUnique values in '{col}':")
+        print(df[col].unique())
+        
