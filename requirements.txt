@@ -1,2 +1,5 @@
 pandas
 ipykernel
+tqdm
+requests
+beautifulsoup4
