@@ -5,6 +5,7 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from tqdm import tqdm
+from scripts.load_data import load_raw_data
 
 
 BASE_URL = "https://geosteam.conservation.ca.gov"
@@ -105,7 +106,7 @@ def save_output(df, cache, path):
     os.makedirs(os.path.dirname(path), exist_ok=True)
 
     if os.path.exists(path):
-        out = pd.read_csv(path, dtype={API_COLUMN: str})
+        out = load_raw_data(path, dtype={API_COLUMN: str})
         out["api_norm"] = out[API_COLUMN].apply(normalize_api)
         # Cast to object so string years can be assigned without dtype errors
         out["year_drilled"] = out["year_drilled"].astype(object) if "year_drilled" in out.columns else pd.Series([None] * len(out), dtype=object)
@@ -132,7 +133,7 @@ def save_output(df, cache, path):
 
 def load_wells(input_csv=INPUT_CSV):
     """Load the wells CSV and normalize API numbers."""
-    df = pd.read_csv(input_csv)
+    df = load_raw_data(input_csv)
     if API_COLUMN not in df.columns:
         raise ValueError(f"Column '{API_COLUMN}' not found. Available: {list(df.columns)}")
     df["api_norm"] = df[API_COLUMN].apply(normalize_api)
@@ -143,7 +144,7 @@ def load_cache(output_csv=OUTPUT_CSV):
     """Load already-scraped results from the output CSV into a cache dict."""
     cache = {}
     if os.path.exists(output_csv):
-        done_df = pd.read_csv(output_csv, dtype={API_COLUMN: str})
+        done_df = load_raw_data(output_csv, dtype={API_COLUMN: str})
         done_df["api_norm"] = done_df[API_COLUMN].apply(normalize_api)
         for _, row in done_df.iterrows():
             key = row["api_norm"]
