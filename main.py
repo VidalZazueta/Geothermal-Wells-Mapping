@@ -37,14 +37,14 @@ def main():
 
     # Step 2: Normalize API numbers
     print("\nStep 2: Normalizing API numbers...")
-    df["api_norm"] = df[API_COLUMN].apply(normalize_api)
-    print(f"  {df['api_norm'].notna().sum()} valid API numbers found")
+    df["API Number Normalized"] = df[API_COLUMN].apply(normalize_api)
+    print(f"  {df['API Number Normalized'].notna().sum()} valid API numbers found")
 
     # Step 3: Clean the data
     print("\nStep 3: Cleaning data...")
     df = clean_data(df)
 
-    '''
+
     # Step 4: Scrape year drilled from the GeoSteam website
     print("\nStep 4: Scraping year drilled from website...")
     cache = load_cache(OUTPUT_CSV)
@@ -52,8 +52,7 @@ def main():
     scrape_years(df, cache, OUTPUT_CSV)
 
     print("\nPipeline complete.")
-    
-    '''
+
 
 if __name__ == "__main__":
     main()

@@ -10,6 +10,7 @@ not re-requested on subsequent runs.
 
 import os
 import re
+import sys
 import time
 import pandas as pd
 import requests
@@ -21,7 +22,7 @@ from scripts.load_data import load_raw_data
 BASE_URL = "https://geosteam.conservation.ca.gov"
 
 INPUT_CSV  = "Data/Raw/geothermal_wells_ca.csv"
-OUTPUT_CSV = "Data/Processed/geothermal_wells_with_dates.csv"
+OUTPUT_CSV = "Data/Processed/geothermal_wells_cleaned_with_dates.csv"
 
 API_COLUMN = "APINumber"
 
@@ -157,7 +158,7 @@ def fetch_year_drilled(api_number):
     """
     Fetch the year drilled for a single well from the GeoSteam website.
 
-    Waits 2 seconds before each request to respect the site's rate limit,
+    Waits 1 seconds before each request to respect the site's rate limit,
     then downloads the well's detail page and extracts the year drilled.
 
     Args:
@@ -168,7 +169,7 @@ def fetch_year_drilled(api_number):
             - year (str or None): The year the well was drilled, or None.
             - status (str): "ok" if a year was found, "year_not_found" otherwise.
     """
-    time.sleep(2)  # rate-limit: one request every 2 seconds
+    time.sleep(1)  # rate-limit: one request every 1 second
     r = get_with_retry(get_detail_url(api_number))
     year_drilled = extract_year_drilled(r.text)
     if not year_drilled:
@@ -200,23 +201,23 @@ def save_output(df, cache, path):
 
     if os.path.exists(path):
         out = load_raw_data(path, dtype={API_COLUMN: str})
-        out["api_norm"] = out[API_COLUMN].apply(normalize_api)
+        out["API Number Normalized"] = out[API_COLUMN].apply(normalize_api)
         # Cast to object so string years can be assigned without dtype errors
         out["Year Drilled"] = out["Year Drilled"].astype(object) if "Year Drilled" in out.columns else pd.Series([None] * len(out), dtype=object)
         out["Year Drilled Status"] = out["Year Drilled Status"].astype(object) if "Year Drilled Status" in out.columns else pd.Series([None] * len(out), dtype=object)
         for idx, row in out.iterrows():
-            key = row["api_norm"]
+            key = row["API Number Normalized"]
             if pd.notna(key) and key in cache:
                 out.at[idx, "Year Drilled"] = cache[key][0]
                 out.at[idx, "Year Drilled Status"] = cache[key][1]
     else:
         out = df.copy()
         out["Year Drilled"] = pd.Series(
-            [cache.get(x, (None, None))[0] if pd.notna(x) else None for x in out["api_norm"]],
+            [cache.get(x, (None, None))[0] if pd.notna(x) else None for x in out["API Number Normalized"]],
             dtype=object
         )
         out["Year Drilled Status"] = pd.Series(
-            [cache.get(x, (None, None))[1] if pd.notna(x) else None for x in out["api_norm"]],
+            [cache.get(x, (None, None))[1] if pd.notna(x) else None for x in out["API Number Normalized"]],
             dtype=object
         )
 
@@ -229,7 +230,7 @@ def load_wells(input_csv=INPUT_CSV):
     Load the raw wells CSV and add a normalized API number column.
 
     Reads the CSV at `input_csv`, verifies that the APINumber column
-    is present, and adds an "api_norm" column containing the 8-digit
+    is present, and adds an "API Number Normalized" column containing the 8-digit
     zero-padded API number for each row.
 
     Args:
@@ -237,7 +238,7 @@ def load_wells(input_csv=INPUT_CSV):
                          Defaults to INPUT_CSV ("Data/Raw/geothermal_wells_ca.csv").
 
     Returns:
-        pandas.DataFrame: The wells DataFrame with the "api_norm" column added.
+        pandas.DataFrame: The wells DataFrame with the "API Number Normalized" column added.
 
     Raises:
         ValueError: If the APINumber column is not found in the CSV.
@@ -245,7 +246,7 @@ def load_wells(input_csv=INPUT_CSV):
     df = load_raw_data(input_csv)
     if API_COLUMN not in df.columns:
         raise ValueError(f"Column '{API_COLUMN}' not found. Available: {list(df.columns)}")
-    df["api_norm"] = df[API_COLUMN].apply(normalize_api)
+    df["API Number Normalized"] = df[API_COLUMN].apply(normalize_api)
     return df
 
 
@@ -269,9 +270,9 @@ def load_cache(output_csv=OUTPUT_CSV):
     cache = {}
     if os.path.exists(output_csv):
         done_df = load_raw_data(output_csv, dtype={API_COLUMN: str})
-        done_df["api_norm"] = done_df[API_COLUMN].apply(normalize_api)
+        done_df["API Number Normalized"] = done_df[API_COLUMN].apply(normalize_api)
         for _, row in done_df.iterrows():
-            key = row["api_norm"]
+            key = row["API Number Normalized"]
             if pd.notna(key) and pd.notna(row.get("Year Drilled Status")):
                 cache[key] = (row.get("Year Drilled"), row.get("Year Drilled Status"))
     return cache
@@ -288,7 +289,7 @@ def scrape_years(df, cache, output_csv=OUTPUT_CSV, checkpoint_every=50):
     not_found / error counts.
 
     Args:
-        df (pandas.DataFrame): Wells DataFrame with an "api_norm" column,
+        df (pandas.DataFrame): Wells DataFrame with an "API Number Normalized" column,
                                as returned by load_wells.
         cache (dict): Existing cache of already-scraped results, as returned
                       by load_cache. Updated in place during the run.
@@ -300,7 +301,7 @@ def scrape_years(df, cache, output_csv=OUTPUT_CSV, checkpoint_every=50):
     Returns:
         dict: The updated cache containing results for all scraped wells.
     """
-    unique_apis = [a for a in df["api_norm"].dropna().unique() if a not in cache]
+    unique_apis = [a for a in df["API Number Normalized"].dropna().unique() if a not in cache]
     total = len(unique_apis)
     print(f"APIs left to fetch: {total}")
 
@@ -308,7 +309,7 @@ def scrape_years(df, cache, output_csv=OUTPUT_CSV, checkpoint_every=50):
     not_found = sum(1 for v in cache.values() if v[1] == "year_not_found")
     errors = sum(1 for v in cache.values() if v[1] == "error")
 
-    bar = tqdm(unique_apis, desc="Scraping wells", unit="well", dynamic_ncols=True)
+    bar = tqdm(unique_apis, desc="Scraping wells", unit="well", dynamic_ncols=True, file=sys.stdout)
     for i, api in enumerate(unique_apis, start=1):
         try:
             year_value, status = fetch_year_drilled(api)
