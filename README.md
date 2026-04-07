@@ -21,15 +21,24 @@ If the project continued until after our assignment, we could add predictive ele
 
 ## Tools
 Tableau: For building interactive dashboards and geospatial maps.
+Jupyter Notebook: Prototype Python scripts and conduct exploratory data analysis
 Python: For data cleaning, handling null values, and formatting the CSV for Tableau.
-Excel: For initial data inspection,
+Excel: For additional data cleaning and inspection
 GitHub: For version control and sharing our Python scripts among the team.
 
 ## References
 Dataset: https://lab.data.ca.gov/dataset/calgem-geothermal-wells/651ae213-b4b9-4721-907d-f967e1b7a89e
 
+## Tableau Public
+The data visualizations are public on Tableau Public in the link below
+https://public.tableau.com/app/profile/vidal.zazueta/viz/GeothermalVisualizations/GeoMapofWells
+
+Sample Visualization
+<img width="1836" height="747" alt="image" src="https://github.com/user-attachments/assets/0628999e-8105-4bb3-9922-b76c0adbd5ef" />
+
+
 ## Installation
-1. Go into desired folder or workspace and clone the repository
+1. Go into the desired folder or workspace and clone the repository
 
 2. Create a virtual environment with Python 3.10 or higher
     ### Windows
@@ -50,8 +59,8 @@ Dataset: https://lab.data.ca.gov/dataset/calgem-geothermal-wells/651ae213-b4b9-4
 
 Note: If you are using VS Code, it should automatically activate your environment
 4. Select the virtual environment in your IDE (e.g., VS Code)
-    - Press Ctrl+Shift+P, then select "Python: Select Interpreter"
+    - Press Ctrl+Shift+P, then select "Python: Select Interpreter."
     - Select "Enter interpreter path..." then select "Find..."
-    - When File explorer opens go to env -> Scripts -> select "python.exe"
+    - When File Explorer opens, go to env -> Scripts -> select "python.exe"
 
 4. Next run: pip install -r requirements.txt
